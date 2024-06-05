@@ -1,5 +1,8 @@
+
 import pygame
 import numpy
+import threading
+from collections import deque
 
 
 class Elevator:
@@ -19,7 +22,9 @@ class Elevator:
         self.clock = pygame.time.Clock()
         self.REFRESH_RATE = 111
         self.timer = 0
-        # self.array_possibility = []
+        self.que = deque()
+        self.finish_time = 0
+        
 
     def elevators_builder(self, lift_num, screen):
         x = self.FLOOR_WIDTH + lift_num * self.ELEVATOR_WIDTH 
@@ -28,28 +33,37 @@ class Elevator:
         self.elevator_position = x, y
         pygame.display.flip()
 
-    def choose_an_elevator(self, building, Invitation):
+    def choose_an_elevator(self, building, num_Invitation, screen):
         for i in range(len(building.array_elevators)):
             possibility = building.array_elevators[i]
             x2, y2 = possibility.elevator_position
             y2 = (possibility.SCREEN_HEIGHT - y2)//(possibility.FLOOR_HEIGHT + possibility.LINE_HEIGHT)
-            z = abs(Invitation - y2)
+            z = abs(num_Invitation - y2)
             building.array_possibility.append(z)
-        min_value = min(building.array_possibility)
-        min_index = building.array_possibility.index(min_value)
+            possibility_time = building.array_elevators[i]
+            time = possibility_time.finish_time
+            building.array_possibility_time.append(time)
+        for i in range(len(building.array_possibility)):
+            d = building.array_possibility[i]
+            t = building.array_possibility_time[i]
+            building.array_options.append(d + t)
+        min_value = min(building.array_options)
+        min_value_dis = min(building.array_possibility)
+        min_index = building.array_options.index(min_value)
         building.array_possibility.clear()
-        return min_index, min_value 
-
-            
-
-    def move_elevator(self, screen, num_Invitation, building):
-        min_index, min_value  = Elevator.choose_an_elevator(self, building, num_Invitation)
+        building.array_possibility_time.clear()
+        building.array_options.clear()
+        building.array_elevators[min_index].que.append(num_Invitation)
         lift = building.array_elevators[min_index]
-        self.timer(min_value, num_Invitation, screen)
+        thread = threading.Thread(target = self.timer, args = (min_value_dis, num_Invitation, screen, lift))
+        thread.start()
+        return min_index, min_value 
+    
+         
+    def move_elevator(self, screen, num_Invitation, lift, building):
         x, y = lift.elevator_position
-        pygame.display.flip()
         new_y = lift.SCREEN_HEIGHT - num_Invitation * (lift.FLOOR_HEIGHT + lift.LINE_HEIGHT) - lift.FLOOR_HEIGHT 
-        while y != new_y:
+        if y != new_y:
             if new_y < y:
                 y -= 1
             else:
@@ -58,58 +72,14 @@ class Elevator:
             screen.blit(lift.elevator_img, (x,y))
             pygame.display.flip()
             lift.clock.tick(lift.REFRESH_RATE)
-            # Elevator.set_current_floor(y)
             lift.elevator_position = x, y
+        if y == new_y:
+            lift.que.popleft()
+            floor = building.array_floors[num_Invitation]
+            floor.back_to_original(screen, num_Invitation)
        
         
 
-
-            
-
-     
-
-
-
-
-
-
-# class ManagerElevators:
-#     def __init__(self):  
-#         self.__ring = "/home/beny/Downloads/ding.mp3"
-#         self.__time = 0
-#         self.__num_elevators = 0                           #??????????????
-#         self.__location_elevator = 0                         #????????????
-#         self.__list_actions = 0
-#         self.__array_elevators = []
-#         self.__queue = deque()
-#         self.__array_elevators_time = []
-
-#     def elevators_time(self, num_elevators):
-#         for lift in range(1, num_elevators + 1):  
-#             self.array_elevators_time.append(0)
-
-                              
-#     def manager(self, invitation):
-#         for lift in range(len(self.array_elevators_time)):
-#             time_try = self.array_elevators_time[lift] +  abs((invitation - self.location_elevator) / 2)
-
-
-#         self.time = abs((invitation - self.location_elevator) / 2) + self.list_actions
-
-#         self.list_actions += self.time
-
-#         self.location_elevator = invitation            #                            עד שהמעלית תגיע להוסיף את הזמן עצמו
-
-#     def insert_queue(self):
-#         self.queue.append('invitation')
-
-#     def remove_queue(self):
-#         self.queue.popleft()
-
-        
-    # def go_up(self):
-
-    # def go_down(self):
 
 
 
