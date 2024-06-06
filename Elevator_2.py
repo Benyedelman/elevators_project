@@ -3,6 +3,7 @@ import pygame
 import numpy
 import threading
 from collections import deque
+import time
 
 
 class Elevator:
@@ -24,8 +25,10 @@ class Elevator:
         self.timer = 0
         self.que = deque()
         self.finish_time = 0
+        self.t1 = 0
+        self.position_of_last_floor = 0
         
-
+    # Builds all the elevators
     def elevators_builder(self, lift_num, screen):
         x = self.FLOOR_WIDTH + lift_num * self.ELEVATOR_WIDTH 
         y = self.SCREEN_HEIGHT - self.FLOOR_HEIGHT 
@@ -33,50 +36,30 @@ class Elevator:
         self.elevator_position = x, y
         pygame.display.flip()
 
-    def choose_an_elevator(self, building, num_Invitation, screen):
-        for i in range(len(building.array_elevators)):
-            possibility = building.array_elevators[i]
-            x2, y2 = possibility.elevator_position
-            y2 = (possibility.SCREEN_HEIGHT - y2)//(possibility.FLOOR_HEIGHT + possibility.LINE_HEIGHT)
-            z = abs(num_Invitation - y2)
-            building.array_possibility.append(z)
-            possibility_time = building.array_elevators[i]
-            time = possibility_time.finish_time
-            building.array_possibility_time.append(time)
-        for i in range(len(building.array_possibility)):
-            d = building.array_possibility[i]
-            t = building.array_possibility_time[i]
-            building.array_options.append(d + t)
-        min_value = min(building.array_options)
-        min_value_dis = min(building.array_possibility)
-        min_index = building.array_options.index(min_value)
-        building.array_possibility.clear()
-        building.array_possibility_time.clear()
-        building.array_options.clear()
-        building.array_elevators[min_index].que.append(num_Invitation)
-        lift = building.array_elevators[min_index]
-        thread = threading.Thread(target = self.timer, args = (min_value_dis, num_Invitation, screen, lift))
-        thread.start()
-        return min_index, min_value 
     
-         
+    # Moves the elevator
     def move_elevator(self, screen, num_Invitation, lift, building):
-        x, y = lift.elevator_position
-        new_y = lift.SCREEN_HEIGHT - num_Invitation * (lift.FLOOR_HEIGHT + lift.LINE_HEIGHT) - lift.FLOOR_HEIGHT 
-        if y != new_y:
-            if new_y < y:
-                y -= 1
-            else:
-                y +=1
-            pygame.draw.line(screen, lift.sky_blue, [x + lift.ELEVATOR_WIDTH/2, lift.SCREEN_HEIGHT], [x + lift.ELEVATOR_WIDTH/2, 0], 70)
-            screen.blit(lift.elevator_img, (x,y))
-            pygame.display.flip()
-            lift.clock.tick(lift.REFRESH_RATE)
-            lift.elevator_position = x, y
-        if y == new_y:
-            lift.que.popleft()
-            floor = building.array_floors[num_Invitation]
-            floor.back_to_original(screen, num_Invitation)
+        t0 = time.perf_counter()
+        if t0 - lift.t1 >= 2:
+            x, y = lift.elevator_position
+            new_y = lift.SCREEN_HEIGHT - num_Invitation * (lift.FLOOR_HEIGHT + lift.LINE_HEIGHT) - lift.FLOOR_HEIGHT 
+            if y != new_y:
+                if new_y < y:
+                    y -= 1
+                else:
+                    y +=1
+                pygame.draw.line(screen, lift.sky_blue, [x + lift.ELEVATOR_WIDTH/2, lift.SCREEN_HEIGHT], [x + lift.ELEVATOR_WIDTH/2, 0], 70)
+                screen.blit(lift.elevator_img, (x,y))
+                pygame.display.flip()
+                lift.clock.tick(lift.REFRESH_RATE)
+                lift.elevator_position = x, y
+            if y == new_y:
+                lift.que.popleft()
+                floor = building.array_floors[num_Invitation]
+                floor.elevator_on_the_way = False
+                floor.back_to_original(screen, num_Invitation)
+                lift.t1 = time.perf_counter()
+                lift.finish_time += 2
        
         
 

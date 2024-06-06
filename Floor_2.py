@@ -20,7 +20,9 @@ class Floor:
         self.button_radius  = 10
         self.SCREEN_HEIGHT = (self.FLOOR_HEIGHT + self.LINE_HEIGHT) * self.NUM_FLOORS - self.LINE_HEIGHT
         self.sky_blue = (135, 206, 235)
-       
+        self.elevator_on_the_way = False
+
+    #  Builds all floors, black line, button color, button, and number floor
     def floors_builder(self, floor_num, screen):
         y = self.SCREEN_HEIGHT - (floor_num + 1) * self.FLOOR_HEIGHT - self.LINE_HEIGHT * floor_num   #floor builder
         x = 0
@@ -39,32 +41,39 @@ class Floor:
         pygame.draw.line(screen, self.BLACK, [x, y], [self.FLOOR_WIDTH-1, y], self.LINE_HEIGHT)
         pygame.display.flip() 
 
+    # After the elevator is finished, returns the original button color 
     def change_button_color(self, screen, x_button_location, y_button_location, num_Invitation, x_num_location, y_num_location):
         pygame.draw.circle(screen, self.CONTROL_COLOR, [x_button_location, y_button_location], 10) 
         font = pygame.font.Font(None, 25)
         number = font.render(f"{num_Invitation}", True, (self.BLACK))
         screen.blit(number, (x_num_location,y_num_location))
 
-    def timer(self, min_value, num_Invitation, screen, lift):
-        # timer = min_value / 2
-        timer =  lift.finish_time + min_value / 2
-        lift.finish_time = lift.finish_time + timer
-        font = pygame.font.Font(None, 25)
-        number = font.render(f"{timer}", True, (self.RED))
-        screen.blit(number, (100, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5 ))
-        pygame.display.flip() 
-        while timer > 0:
-            timer -= 0.5
-            time.sleep(0.5)
-            lift.finish_time = lift.finish_time - 0.5
-            pygame.draw.circle(screen, self.sky_blue, [110, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5  + 10], 20)
+    # Calculates the time and presents it 
+    def timer(self, num_Invitation, screen, lift):
+        timer = abs(lift.position_of_last_floor - num_Invitation)/2 + lift.finish_time
+        # timer =  lift.finish_time + min_value_dis / 2
+        if lift.finish_time >= 2 :
+            lift.finish_time +=  timer - 2
+        else:
+            lift.finish_time +=  timer
+        if timer > 0:
             font = pygame.font.Font(None, 25)
             number = font.render(f"{timer}", True, (self.RED))
             screen.blit(number, (100, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5 ))
             pygame.display.flip() 
-        pygame.draw.circle(screen, self.sky_blue, [110, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5  + 10], 20)
+        while timer > 0:
+            timer -= 0.5
+            time.sleep(0.5)
+            lift.finish_time -= 0.5
+            pygame.draw.circle(screen, self.sky_blue, [112, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5  + 8], 20)
+            font = pygame.font.Font(None, 25)
+            number = font.render(f"{timer}", True, (self.RED))
+            screen.blit(number, (100, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5 ))
+            pygame.display.flip() 
+        pygame.draw.circle(screen, self.sky_blue, [112, self.SCREEN_HEIGHT - num_Invitation * self.FLOOR_HEIGHT - self.LINE_HEIGHT * num_Invitation -  self.FLOOR_HEIGHT/ 2 - 5  + 8], 20)
         pygame.display.flip() 
-
+    
+    # After the elevator is finished, returns the original button color , and play the ringer
     def back_to_original(self, screen, num_Invitation):
         x_button_location, y_button_location = self.button
         x_num_location, y_num_location = self.number_position 
@@ -80,9 +89,14 @@ class Floor:
         font = pygame.font.Font(None, 25)
         number = font.render(f"{num_Invitation}", True, (self.BLACK))
         screen.blit(number, (x_num_location, y_num_location))
-        min_index, min_value  = Elevator.choose_an_elevator(self, building, num_Invitation, screen)
-        lift = building.array_elevators[min_index]
-        Elevator.move_elevator(self, screen, num_Invitation, lift, building)
+        floor = building.array_floors[num_Invitation]
+        if floor.elevator_on_the_way == False:
+            floor.elevator_on_the_way = True
+            min_index = building.choose_an_elevator(num_Invitation, screen)
+            lift = building.array_elevators[min_index]
+            Elevator.move_elevator(self, screen, num_Invitation, lift, building)
+
+   
         
         
     

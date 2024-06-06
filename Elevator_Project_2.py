@@ -4,10 +4,10 @@ from Building_2 import Building
 from Floor_2 import Floor
 
 NUM_FLOORS = 10
-NUM_ELEVATORS = 1
+NUM_ELEVATORS = 2
 ELEVATOR_IMAGE = "elv(1).png"
 elevator_img = pygame.image.load(ELEVATOR_IMAGE)
-CONTROL_COLOR = (128,128,128)
+CONTROL_COLOR = (128 ,128 ,128)
 FLOOR_HEIGHT = 50
 LINE_HEIGHT = 7
 SCREEN_HEIGHT = (FLOOR_HEIGHT + LINE_HEIGHT) * NUM_FLOORS - LINE_HEIGHT
@@ -24,7 +24,7 @@ screen.fill(sky_blue)
 building.architect(NUM_ELEVATORS, NUM_FLOORS, screen)
 
     
-def button(building ):
+def button(building):
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         x_mouse, y_mouse = pygame.mouse.get_pos()
         num_Invitation = (SCREEN_HEIGHT - y_mouse)//(FLOOR_HEIGHT + LINE_HEIGHT)
