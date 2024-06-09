@@ -4,9 +4,7 @@ from Building_2 import Building
 from Floor_2 import Floor
 
 NUM_FLOORS = 10
-NUM_ELEVATORS = 2
-ELEVATOR_IMAGE = "elv(1).png"
-elevator_img = pygame.image.load(ELEVATOR_IMAGE)
+NUM_ELEVATORS = 4
 CONTROL_COLOR = (128 ,128 ,128)
 FLOOR_HEIGHT = 50
 LINE_HEIGHT = 7
@@ -21,17 +19,17 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("the elevator challenge")
 screen.fill(sky_blue)
-building.architect(NUM_ELEVATORS, NUM_FLOORS, screen)
+building.architect(SCREEN_HEIGHT, NUM_ELEVATORS, NUM_FLOORS, screen)
 
     
 def button(building):
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         x_mouse, y_mouse = pygame.mouse.get_pos()
-        num_Invitation = (SCREEN_HEIGHT - y_mouse)//(FLOOR_HEIGHT + LINE_HEIGHT)
+        num_invitation = (SCREEN_HEIGHT - y_mouse)//(FLOOR_HEIGHT + LINE_HEIGHT)
         for floor in building.array_floors:
             x_button_location, y_button_location = floor.button
             if (x_mouse - x_button_location)**2 + (y_mouse - y_button_location)**2 <= floor.button_radius**2:
-                floor.floor_button(screen, num_Invitation, building)
+                floor.floor_button(screen, num_invitation, building)
                             
 run = True
 while run:
