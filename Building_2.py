@@ -39,7 +39,7 @@ class Building:
             lift.stopwatch_for_finish_time()
             if lift.queue:
                 first_element = lift.queue[0]
-                Elevator.move_elevator(self, screen, first_element, lift, building)
+                Elevator.move_elevator(lift, screen, first_element, building)
 
 
     def merge_for_minimum(self, num_invitation):
@@ -60,7 +60,9 @@ class Building:
         self.array_dist_and_time.clear()
         self.array_elevators[min_index].queue.append(num_invitation)
         lift = self.array_elevators[min_index]
-        thread = threading.Thread(target = floor.timer, args = (min_value, num_invitation, screen, lift))
+        lift.position_of_last_floor = num_invitation
+        lift.finish_time = min_value + 2
+        thread = threading.Thread(target = floor.timer, args = (min_value, num_invitation, screen))
         thread.start()
         
         

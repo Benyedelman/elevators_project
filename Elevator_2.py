@@ -24,8 +24,6 @@ class Elevator:
         self.start_move = None
         self.start_timer_finish_time = None
 
-    
-
     #Starts the stopwatch to finish time
     def stopwatch_for_finish_time(self):
         if self.start_timer_finish_time == None:
@@ -33,14 +31,10 @@ class Elevator:
         elif self.finish_time > 0:
             self.finish_time -= time.time() - self.start_timer_finish_time
             self.start_timer_finish_time = time.time()
-            # print(self.finish_time)
+            print(self.finish_time)                                                    # ???????????????????????????
         else:
             self.start_timer_finish_time = None
-            # print(lift.finish_time)
 
-
-        
-        
     # Builds all the elevators
     def elevators_builder(self, SCREEN_HEIGHT, lift_num, screen):
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
@@ -50,32 +44,60 @@ class Elevator:
         self.elevator_position = x, y   #Saves the location of the elevator
         pygame.display.flip()
 
-    
     # Moves the elevator
-    def move_elevator(self, screen, num_invitation, lift, building):
-        time_end = time.perf_counter() #Checks if two seconds have passed since the elevator reached its destination
-        if time_end - lift.time_start >= 2:
-            x, y = lift.elevator_position    #Updates the location of the elevator
-            current_y = lift.SCREEN_HEIGHT - num_invitation * (lift.FLOOR_HEIGHT + lift.LINE_HEIGHT) - lift.FLOOR_HEIGHT    # Calculate the location where the elevator should reach 
+    def move_elevator(self, screen, num_invitation, building):
+        time_end = time.perf_counter()                        #Checks if two seconds have passed since the elevator reached its destination
+        if time_end - self.time_start >= 2:
+            x, y = self.elevator_position                     #Updates the location of the elevator
+            current_y = self.SCREEN_HEIGHT - num_invitation * (self.FLOOR_HEIGHT + self.LINE_HEIGHT) - self.FLOOR_HEIGHT    # Calculate the location where the elevator should reach 
             if y != current_y:
                 if current_y < y:
                     y -= 1
                 else:
                     y +=1
-                pygame.draw.line(screen, lift.sky_blue, [x + lift.ELEVATOR_WIDTH/2, lift.SCREEN_HEIGHT], [x + lift.ELEVATOR_WIDTH/2, 0], 70)
-                screen.blit(lift.elevator_img, (x,y))    #Pastes the image of the elevator
+                pygame.draw.line(screen, self.sky_blue, [x + self.ELEVATOR_WIDTH/2, self.SCREEN_HEIGHT], [x + self.ELEVATOR_WIDTH/2, 0], 70)
+                screen.blit(self.elevator_img, (x,y))         #Pastes the image of the elevator
                 pygame.display.flip()
-                lift.clock.tick(lift.REFRESH_RATE)  #Defines the speed the elevator moves per second
-                lift.elevator_position = x, y   #Updates the location of the elevator
-            if y == current_y:
-                lift.queue.popleft()    #Removes the floor from the elevator queue
+                self.clock.tick(self.REFRESH_RATE)            #Defines the speed the elevator moves per second
+                self.elevator_position = x, y                 #Updates the location of the elevator
+            else:
+                self.queue.popleft()                          #Removes the floor from the elevator queue
                 floor = building.array_floors[num_invitation]
                 floor.elevator_on_the_way = False
                 floor.back_to_original(screen, num_invitation)
-                lift.time_start = time.perf_counter()
+                self.time_start = time.perf_counter()
                 
        
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # def move_elevator(self, screen, num_invitation, lift, building):
     #     time_end = time.perf_counter() #Checks if two seconds have passed since the elevator reached its destination
